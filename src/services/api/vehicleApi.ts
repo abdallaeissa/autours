@@ -25,11 +25,13 @@ export const vehicleApi = {
       filteredCategories: (response.filteredCategories || []).map((c: any) => ({
         id: c.id,
         name: c.name,
+        photo: c.photo || '',
         vehicle_count: c.vehicle_count ?? c.pivot?.vehicle_count ?? 0,
       })),
       filteredSuppliers: (response.filteredSuppliers || []).map((s: any) => ({
         id: s.id,
-        name: s.name || s.company,
+        name: s.company || s.name,
+        logo: s.logo || '',
         vehicle_count: s.vehicle_count ?? 0,
       })),
     };

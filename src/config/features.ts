@@ -27,13 +27,13 @@ export const features = {
   // ── Global UI Features ────────────────────────────────────────────────────
 
   /** Contest promotional popup — shows on homepage only */
-  contestPopup: true,
+  contestPopup: false,
 
   /** Contest control page in admin dashboard */
   contestControl: true,
 
   /** Global login gate popup on homepage */
-  loginGate: true,
+  loginGate: false,
 
 } as const;
 
