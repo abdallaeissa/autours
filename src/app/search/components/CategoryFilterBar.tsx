@@ -5,8 +5,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { RootState, AppDispatch } from '@/store';
-import { setFilterParams, applyLocalFilters } from '@/store/slices/searchSlice';
-import { categories } from '@/data/categories';
+import { setFilterParams } from '@/store/slices/searchSlice';
+import { getImageUrl } from '@/utils/getImageUrl';
 
 interface CategoryFilterBarProps {
   onFilterChange?: () => void;
@@ -19,6 +19,7 @@ export default function CategoryFilterBar({ onFilterChange }: CategoryFilterBarP
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const filterParams = useSelector((state: RootState) => state.search.filterParams);
+  const filteredCategories = useSelector((state: RootState) => state.search.filteredCategories);
 
   const handleScroll = useCallback(() => {
     if (scrollRef.current) {
@@ -51,13 +52,13 @@ export default function CategoryFilterBar({ onFilterChange }: CategoryFilterBarP
     const isSelected = filterParams.category.includes(catId);
     const newCategory = isSelected ? [] : [catId];
     dispatch(setFilterParams({ category: newCategory }));
-    dispatch(applyLocalFilters());
     onFilterChange?.();
   }, [filterParams.category, dispatch, onFilterChange]);
 
+  if (!filteredCategories || filteredCategories.length === 0) return null;
+
   return (
     <div className="relative w-full">
-      {/* Left Arrow - Desktop only */}
       {canScrollLeft && (
         <button
           onClick={() => scroll('left')}
@@ -67,7 +68,6 @@ export default function CategoryFilterBar({ onFilterChange }: CategoryFilterBarP
         </button>
       )}
 
-      {/* Right Arrow - Desktop only */}
       {canScrollRight && (
         <button
           onClick={() => scroll('right')}
@@ -77,19 +77,20 @@ export default function CategoryFilterBar({ onFilterChange }: CategoryFilterBarP
         </button>
       )}
 
-      {/* Scrollable slider */}
       <div
         ref={scrollRef}
         className="flex gap-3 overflow-x-auto no-scrollbar px-2 sm:px-12 py-2"
         style={{ scrollBehavior: 'smooth' }}
       >
-        {categories.map((cat) => {
-          const isSelected = filterParams.category.includes(cat.id);
+        {filteredCategories.map((cat) => {
+          const catId = String(cat.id);
+          const isSelected = filterParams.category.includes(catId);
+          const photoUrl = (cat as any).photo ? getImageUrl((cat as any).photo) : '';
 
           return (
             <motion.button
               key={cat.id}
-              onClick={() => handleCategoryClick(cat.id)}
+              onClick={() => handleCategoryClick(catId)}
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.97 }}
               className={`relative flex flex-col items-center justify-center min-w-[140px] sm:min-w-[180px] w-[140px] sm:w-[180px] rounded-xl border transition-all shrink-0 overflow-hidden ${isSelected
@@ -97,14 +98,25 @@ export default function CategoryFilterBar({ onFilterChange }: CategoryFilterBarP
                   : 'border-gray-200 bg-white shadow-[0_4px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.18)] hover:border-yellow-300'
                 }`}
             >
-              {/* Category Image - Large */}
-              <div className="w-full h-[140px] sm:h-[160px] flex items-center justify-center overflow-hidden p-3">
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-[200px] h-[200px] object-contain transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
+              {photoUrl ? (
+                <div className="w-full h-[140px] sm:h-[160px] flex items-center justify-center overflow-hidden p-3">
+                  <img
+                    src={photoUrl}
+                    alt={cat.name}
+                    className="w-[200px] h-[200px] object-contain transition-transform duration-300 group-hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-[100px] sm:h-[120px] flex items-center justify-center">
+                  <span className="text-sm font-bold text-gray-700">{cat.name}</span>
+                </div>
+              )}
+              <div className="pb-2 text-center">
+                <span className="text-xs font-bold text-gray-600">
+                  {cat.name} ({cat.vehicle_count})
+                </span>
               </div>
             </motion.button>
           );

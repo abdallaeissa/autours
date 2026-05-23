@@ -125,8 +125,8 @@ export interface FilterResponse {
   daysNumber: number;
   max: number;
   min: number;
-  filteredCategories?: { id: number; name: string; vehicle_count: number }[];
-  filteredSuppliers?: { id: number; name: string; vehicle_count: number }[];
+  filteredCategories?: { id: number; name: string; vehicle_count: number; photo?: string }[];
+  filteredSuppliers?: { id: number; name: string; vehicle_count: number; logo?: string }[];
 }
 
 export interface LocationBranch {

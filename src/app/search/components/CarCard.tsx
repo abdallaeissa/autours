@@ -14,7 +14,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Vehicle } from '@/types';
-import { getImageUrl } from '@/utils/getImageUrl';
+import { getVehicleImageUrl, getLogoUrl } from '@/utils/getImageUrl';
 import { assets } from '@/config/assets';
 import { formatPrice } from '@/utils/currency';
 import type { Currency } from '@/types';
@@ -56,7 +56,7 @@ export default function CarCard({ vehicle, daysNumber, hideBookingControls = fal
   const [showInstantTooltip, setShowInstantTooltip] = useState(false);
 
   const currencyState = useSelector((state: RootState) => state.currency);
-  const { code: currencyCode, rate: currencyRate, allRates } = currencyState;
+  const { code: currencyCode } = currencyState;
 
   const getSpec = (name: string) => {
     const safeString = (val: any) => {
@@ -117,7 +117,7 @@ export default function CarCard({ vehicle, daysNumber, hideBookingControls = fal
     const rawName = vehicle.name || targets.map(t => t.name || t.car_name || t.title).find(Boolean) || 'Car';
     const trimmedName = typeof rawName === 'string' ? rawName.trim() : 'Car';
 
-    const imgSource = targets.map(t => t.photo || t.image || t.car_photo || t.main_image || t.thumbnail || t.car_image).find(Boolean);
+    const imgSource = vehicle.photo || vehicle.image || targets.map(t => t.photo || t.image || t.car_photo || t.main_image || t.thumbnail || t.car_image).find(Boolean);
     const supplierSource = targets.map(t => t.supplier || t.company || t.rental_company).find(Boolean);
 
     const pickupType = (
@@ -137,13 +137,12 @@ export default function CarCard({ vehicle, daysNumber, hideBookingControls = fal
       })
       .filter(Boolean);
 
-    const basePriceUsd = vehicle.price_in_usd || (vehicle as any).price || 0;
-    const convertedAmount = basePriceUsd * (allRates[currencyCode] || currencyRate) * daysNumber;
+    const totalPrice = vehicle.final_price || vehicle.price_in_usd || (vehicle as any).price || 0;
 
     return {
       name: trimmedName,
-      type: getSpec('type') !== 'N/A' ? getSpec('type') : 'Economy',
-      image: getImageUrl(imgSource),
+      type: getSpec('type') !== 'N/A' ? getSpec('type') : (vehicle.category || 'Economy'),
+      image: getVehicleImageUrl(imgSource),
       transmission: getSpec('transmission'),
       fuelType: getSpec('fuel'),
       seats: getSpec('seats'),
@@ -152,7 +151,7 @@ export default function CarCard({ vehicle, daysNumber, hideBookingControls = fal
       ac: getSpec('air conditioning') !== 'No' ? 'Air Conditioning' : 'No A/C',
       supplier: {
         name: (supplierSource?.company || supplierSource?.name || vehicle.supplier?.company || 'Supplier').toString().trim(),
-        logo: getImageUrl(supplierSource?.logo || vehicle.supplier?.logo),
+        logo: getLogoUrl(supplierSource?.logo || vehicle.supplier?.logo),
         rating: supplierSource?.rating || supplierSource?.rate || 0,
         reviewsCount: supplierSource?.reviewsCount || supplierSource?.reviews_count || 0,
         rentalTerms: (supplierSource?.rentalTerms || supplierSource?.terms || 'General rental terms apply.').toString().trim(),
@@ -162,7 +161,7 @@ export default function CarCard({ vehicle, daysNumber, hideBookingControls = fal
         lng: supplierSource?.lng || 55.3657,
       },
       price: {
-        amount: convertedAmount,
+        amount: totalPrice,
         currency: currencyCode,
         totalDays: daysNumber || 1,
       },
@@ -173,7 +172,7 @@ export default function CarCard({ vehicle, daysNumber, hideBookingControls = fal
       freeCancellation: inclusions.some(i => i.toLowerCase().includes('cancel')),
       freeCancellationHours: 24,
     };
-  }, [vehicle, daysNumber, currencyCode, currencyRate, allRates]);
+  }, [vehicle, daysNumber, currencyCode]);
 
   const openMap = () => {
     window.open(`https://www.google.com/maps?q=${carData.supplier.lat},${carData.supplier.lng}`, '_blank');

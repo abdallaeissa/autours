@@ -1,6 +1,7 @@
 "use client";
 
 import { SearchProvider } from "./context/SearchContext";
+import AuthGuard from '@/components/shared/auth/AuthGuard';
 
 export default function CompanyLayout({
   children,
@@ -8,8 +9,10 @@ export default function CompanyLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SearchProvider>
-      {children}
-    </SearchProvider>
+    <AuthGuard allowedRoles={['admin', 'supplier']}>
+      <SearchProvider>
+        {children}
+      </SearchProvider>
+    </AuthGuard>
   );
 }

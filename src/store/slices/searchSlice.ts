@@ -45,8 +45,8 @@ interface SearchState {
   daysNumber: number;
   maxPrice: number;
   minPrice: number;
-  filteredCategories: { id: number; name: string; vehicle_count: number }[];
-  filteredSuppliers: { id: number; name: string; vehicle_count: number }[];
+  filteredCategories: { id: number; name: string; vehicle_count: number; photo?: string }[];
+  filteredSuppliers: { id: number; name: string; vehicle_count: number; logo?: string }[];
 
   // UI state
   isSearching: boolean;

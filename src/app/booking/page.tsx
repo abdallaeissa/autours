@@ -18,13 +18,12 @@ function BookingContent() {
   const searchParams = useSearchParams();
   const vehicleId = searchParams.get('vehicleId');
   const { vehicles, searchParams: searchStateParams, daysNumber } = useSelector((state: RootState) => state.search);
-  const { code: currencyCode, rate } = useSelector((state: RootState) => state.currency);
+  const { code: currencyCode } = useSelector((state: RootState) => state.currency);
 
   const selectedVehicle = vehicles.find((v: Vehicle) => v.id.toString() === vehicleId) || vehicles[0];
   
   // Calculations
-  const dailyPrice = (selectedVehicle?.price_in_usd || 0) * rate;
-  const totalPrice = Math.round(dailyPrice * daysNumber);
+  const totalPrice = Math.round(selectedVehicle?.final_price || selectedVehicle?.price_in_usd || 0);
   const depositAmount = (totalPrice * 0.125).toFixed(2);
   const payAtPickup = (totalPrice - Number(depositAmount)).toFixed(2);
 
@@ -91,7 +90,7 @@ function BookingContent() {
               <div className="space-y-4 pt-4 border-t border-gray-100">
                 <div className="flex justify-between text-sm font-semibold text-gray-600">
                   <span>Daily Rate</span>
-                  <span className="text-gray-900">{Math.round(dailyPrice).toLocaleString()} {currencyCode}</span>
+                  <span className="text-gray-900">{Math.round(totalPrice / (daysNumber || 1)).toLocaleString()} {currencyCode}</span>
                 </div>
                 <div className="flex justify-between text-sm font-semibold text-gray-600">
                   <span>Total Duration</span>

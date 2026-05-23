@@ -55,22 +55,16 @@ export default function MyVehiclesSection() {
     // If one is added, you would call it here, e.g., supplierApi.toggleVehicleActivation(id)
   };
 
-  const getImageUrl = (v: any) => {
+  const resolveImageUrl = (v: any) => {
     let img = v.image || v.photo || v.car_photo || v.cover_image;
-    // If it's an array, take the first one
     if (Array.isArray(img)) img = img[0];
-    // If it's an object with a url or path property
     if (img && typeof img === 'object') img = img.url || img.path || img.image || '';
     
     if (!img || typeof img !== 'string') return undefined;
     if (img.startsWith('http')) return img;
     
-    // Clean up path
-    img = img.replace(/^\/+/, ''); // Remove leading slashes
-    if (img.startsWith('storage/')) return `https://www.autours.net/${img}`;
-    if (img.startsWith('public/')) return `https://www.autours.net/storage/${img.replace('public/', '')}`;
-    
-    return `https://www.autours.net/storage/${img}`;
+    img = img.replace(/^\/+/, '');
+    return `https://www.autours.net/img/vehicles/${img}`;
   };
 
   return (
@@ -117,8 +111,8 @@ export default function MyVehiclesSection() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
                       <div className="w-20 h-12 rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-gray-50 shrink-0 flex items-center justify-center">
-                        {getImageUrl(vehicle) ? (
-                          <img src={getImageUrl(vehicle) as string} alt={vehicle.name || "Car"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=Car&background=f3f4f6&color=9ca3af'; }} />
+                        {resolveImageUrl(vehicle) ? (
+                          <img src={resolveImageUrl(vehicle) as string} alt={vehicle.name || "Car"} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = 'https://ui-avatars.com/api/?name=Car&background=f3f4f6&color=9ca3af'; }} />
                         ) : (
                           <span className="text-xs text-gray-400 font-bold">No img</span>
                         )}
